@@ -1,0 +1,13 @@
+HT1632_LedMatrix - Arduino library for Holtek HT1632 LED driver chip,
+As implemented on the Sure Electronics DE-DP10X display board
+  (8 x 32 dot matrix LED module.)
+
+ Original code by:
+ Nov, 2008 by Bill Westfield ("WestfW")
+   Copyrighted and distributed under the terms of the Berkely license
+   (copy freely, but include this notice of original author.)
+
+ Adapted for 8x32 display by FlorinC.
+
+Library Created and updated by Andrew Lindsay October/November 2009
+
