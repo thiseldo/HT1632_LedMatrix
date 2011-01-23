@@ -6,6 +6,8 @@
 #ifndef _HT1632_LEDMATRIX_H
 #define _HT1632_LEDMATRIX_H
 
+#define USE_GRAPHIC
+
 #include <inttypes.h>
 #include <wprogram.h>
 #include <avr/pgmspace.h>
@@ -34,6 +36,9 @@
 #define HT1632_CMD_COMS10 0x28	/* CMD= 0010-ABxx-x commons options */
 #define HT1632_CMD_COMS11 0x2C	/* CMD= 0010-ABxx-x commons options */
 #define HT1632_CMD_PWM    0xA0	/* CMD= 101x-PPPP-x PWM duty cycle */
+
+#define PIXEL_OFF 0
+#define PIXEL_ON  1
 
 //class HT1632_LedMatrix 
 class HT1632_LedMatrix  : public Print 
@@ -67,6 +72,18 @@ class HT1632_LedMatrix  : public Print
 	void scrollLeft(byte);
 	void putShadowRam();
 	void putShadowRam(byte);
+	// Graphic functions
+#ifdef  USE_GRAPHIC
+	void drawLine(unsigned char x1, unsigned char y1,
+			unsigned char x2, unsigned char y2, unsigned char c);
+	void drawRectangle(unsigned char x1, unsigned char y1,
+			unsigned char x2, unsigned char y2, unsigned char c);
+	void drawFilledRectangle(unsigned char x1, unsigned char y1,
+			unsigned char x2, unsigned char y2, unsigned char c);
+	void drawCircle(unsigned char xc, unsigned char yc,
+			unsigned char r, unsigned char c);
+#endif
+
 };
 
 #endif //_HT1632_LEDMATRIX_H

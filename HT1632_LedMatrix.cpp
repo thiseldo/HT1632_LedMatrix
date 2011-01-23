@@ -433,11 +433,10 @@ void HT1632_LedMatrix::shiftCursorX(int xinc) {
 
 /*
  * plot a point on the display, with the upper left hand corner
- * being (0,0), and the lower right hand corner being (23, 15).
+ * being (0,0), and the lower right hand corner being (xMax-1, yMax-1).
  * Note that Y increases going "downward" in contrast with most
  * mathematical coordiate systems, but in common with many displays
- * No error checking; bad things may happen if arguments are out of
- * bounds!  (The ASSERTS compile to nothing by default
+ * basic bounds checking used.
  */
 void HT1632_LedMatrix::plot (int x, int y, char val)
 {
@@ -506,5 +505,154 @@ void HT1632_LedMatrix::putShadowRam(byte chipno)
 		sendcol(chipno,i,shadowram[(i>>1)+32*chipno]);
 	}
 }
+
+#ifdef USE_GRAPHIC
+/*
+ * Name         : drawLine
+ * Description  : Draws a line between two points on the display.
+ * Argument(s)  : x1, y1 - Absolute pixel coordinates for line origin.
+ *                x2, y2 - Absolute pixel coordinates for line end.
+ *                c - either PIXEL_ON, PIXEL_OFF
+ * Return value : none
+ */
+void HT1632_LedMatrix::drawLine(unsigned char x1, unsigned char y1,
+		unsigned char x2, unsigned char y2, unsigned char c) {
+    int dx, dy, stepx, stepy, fraction;
+
+    /* Calculate differential form */
+    /* dy   y2 - y1 */
+    /* -- = ------- */
+    /* dx   x2 - x1 */
+
+    /* Take differences */
+    dy = y2 - y1;
+    dx = x2 - x1;
+
+    /* dy is negative */
+    if ( dy < 0 ) {
+        dy    = -dy;
+        stepy = -1;
+    } else {
+        stepy = 1;
+    }
+
+    /* dx is negative */
+    if ( dx < 0 ) {
+        dx    = -dx;
+        stepx = -1;
+    } else {
+        stepx = 1;
+    }
+
+    dx <<= 1;
+    dy <<= 1;
+
+    /* Draw initial position */
+    plot( x1, y1, c );
+
+    /* Draw next positions until end */
+    if ( dx > dy ) {
+        /* Take fraction */
+        fraction = dy - ( dx >> 1);
+        while ( x1 != x2 ) {
+            if ( fraction >= 0 ) {
+                y1 += stepy;
+                fraction -= dx;
+            }
+            x1 += stepx;
+            fraction += dy;
+
+            /* Draw calculated point */
+            plot( x1, y1, c );
+        }
+    } else {
+        /* Take fraction */
+        fraction = dx - ( dy >> 1);
+        while ( y1 != y2 ) {
+            if ( fraction >= 0 ) {
+                x1 += stepx;
+                fraction -= dy;
+            }
+            y1 += stepy;
+            fraction += dx;
+
+            /* Draw calculated point */
+            plot( x1, y1, c );
+        }
+    }
+}
+
+
+/*
+ * Name         : drawRectangle
+ * Description  : Draw a rectangle given to top left and bottom right points
+ * Argument(s)  : x1, y1 - Absolute pixel coordinates for top left corner
+ *                x2, y2 - Absolute pixel coordinates for bottom right corner
+ *                c - either PIXEL_ON, PIXEL_OFF 
+ * Return value : none
+ */
+void HT1632_LedMatrix::drawRectangle(unsigned char x1, unsigned char y1,
+		unsigned char x2, unsigned char y2, unsigned char c){
+	drawLine( x1, y1, x2, y1, c );
+	drawLine( x1, y1, x1, y2, c );
+	drawLine( x1, y2, x2, y2, c );
+	drawLine( x2, y1, x2, y2, c );
+}
+
+
+/*
+ * Name         : drawFilledRectangle
+ * Description  : Draw a filled rectangle given to top left and bottom right points
+ * 		  just simply draws horizontal lines where the rectangle would be
+ * Argument(s)  : x1, y1 - Absolute pixel coordinates for top left corner
+ *                x2, y2 - Absolute pixel coordinates for bottom right corner
+ *                c - either PIXEL_ON, PIXEL_OFF
+ * Return value : none
+ */
+void HT1632_LedMatrix::drawFilledRectangle(unsigned char x1, unsigned char y1,
+		unsigned char x2, unsigned char y2, unsigned char c) {
+	for(int i=y1; i <= y2; i++ ) {
+		drawLine( x1, i, x2, i, c );
+	}
+}
+
+
+/*
+ * Name         : drawCircle
+ * Description  : Draw a circle using Bresenham's algorithm. 
+ * 		  Some small circles will look like squares!!
+ * Argument(s)  : xc, yc - Centre of circle
+ * 		  r - Radius
+ * 		  c - either PIXEL_ON, PIXEL_OFF
+ * Return value : None 
+ */
+void HT1632_LedMatrix::drawCircle(unsigned char xc, unsigned char yc,
+		unsigned char r, unsigned char c) {
+	int x=0;
+	int y=r;
+	int p=3-(2*r);
+
+        plot( xc+x,yc-y, c);
+
+	for(x=0;x<=y;x++) {
+		if (p<0) {
+			y=y;
+			p=(p+(4*x)+6);
+		} else {
+			y=y-1;
+			p=p+((4*(x-y)+10));
+		}
+
+		plot(xc+x,yc-y, c);
+		plot(xc-x,yc-y, c);
+		plot(xc+x,yc+y, c);
+		plot(xc-x,yc+y, c);
+		plot(xc+y,yc-x, c);
+		plot(xc-y,yc-x, c);
+		plot(xc+y,yc+x, c);
+		plot(xc-y,yc+x, c);
+	}
+}
+#endif
 
 // The end!
