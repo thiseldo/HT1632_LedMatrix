@@ -11,3 +11,5 @@ As implemented on the Sure Electronics DE-DP10X display board
 
 Library Created and updated by Andrew Lindsay October/November 2009
 
+Basic graphic functions added for drawing lines, rectangles and circles.
+
