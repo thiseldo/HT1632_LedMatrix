@@ -14,9 +14,6 @@
  ***********************************************************************/
 
 #include "HT1632_LedMatrix.h"
-#include <inttypes.h>
-#include <wprogram.h>
-#include <avr/pgmspace.h>
 #include "font_5x7_p.hpp"
 
 // Use this define to select Direct port writes for speed or regular arduino digitalWrite functions
@@ -336,8 +333,9 @@ void HT1632_LedMatrix::putString(int x, int y, char *str) {
  * display memory, with its upper left at the given coordinate
  * This is unoptimized and simply uses plot() to draw each dot.
  */
-void HT1632_LedMatrix::write( uint8_t c) {
+WRITE_RESULT HT1632_LedMatrix::write( uint8_t c) {
 	putChar( cursorX, cursorY, (char)c );
+	WRITE_RETURN
 }
 
 /*

@@ -8,8 +8,17 @@
 
 #define USE_GRAPHIC
 
+#if ARDUINO >= 100
+  #include <Arduino.h> // Arduino 1.0
+  #define WRITE_RESULT size_t
+  #define WRITE_RETURN return 1;
+#else
+  #include <WProgram.h> // Arduino 0022
+  #define WRITE_RESULT void
+  #define WRITE_RETURN
+#endif
+
 #include <inttypes.h>
-#include <wprogram.h>
 #include <avr/pgmspace.h>
 #include "Print.h"
 
@@ -60,7 +69,7 @@ class HT1632_LedMatrix  : public Print
 	void clear(void);
 	void setBrightness( unsigned char );
 	byte putChar( int, int, char );
-	void write( uint8_t );
+	WRITE_RESULT write( uint8_t );
 	void putString( int, int, char* );
 	void plot( int, int, char );
 	void gotoXY(int , int);
